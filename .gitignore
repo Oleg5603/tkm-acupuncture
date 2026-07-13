@@ -3,3 +3,9 @@ __pycache__/
 *.pyo
 .env
 v1.0/
+app/build/
+app/build_full/
+app/dist/
+app/dist_full/
+app/*.spec
+landing/assets/downloads/

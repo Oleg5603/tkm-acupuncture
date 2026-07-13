@@ -16,11 +16,17 @@ from engine import (
     analyze_ryodoraku, generate_tcm_explanation, _ALL_SYMPTOMS
 )
 from word_export import generate_word
+from trial import check_trial
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-CUSTOM_PATH = os.path.join(os.path.dirname(__file__), "data", "custom_symptoms.json")
+if getattr(sys, "frozen", False):
+    _DATA_DIR = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "TKM")
+    os.makedirs(_DATA_DIR, exist_ok=True)
+else:
+    _DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+CUSTOM_PATH = os.path.join(_DATA_DIR, "custom_symptoms.json")
 
 RYO_ORDER = ["P", "GI", "E", "RP", "C", "IG", "V", "R", "MC", "TR", "VB", "F"]
 
@@ -625,6 +631,10 @@ class App(ctk.CTk):
         win.geometry("1000x700")
         win.grid_columnconfigure(0, weight=1)
         win.grid_rowconfigure(1, weight=1)
+        win.transient(self)
+        win.lift()
+        win.focus_force()
+        win.after(150, win.lift)
 
         self._priority_label_exp = ctk.CTkLabel(
             win, text=self._priority_label.cget("text"),
@@ -760,4 +770,19 @@ class App(ctk.CTk):
 
 
 if __name__ == "__main__":
-    App().mainloop()
+    from tkinter import messagebox
+
+    valid, days_left = check_trial()
+    if not valid:
+        root = ctk.CTk()
+        root.withdraw()
+        messagebox.showerror(
+            "ТКМ — пробный период истёк",
+            "Пробный период (7 дней) закончился.\nОбратитесь для приобретения полной версии.",
+        )
+        sys.exit(0)
+
+    app = App()
+    if days_left <= 2:
+        app.title(f"{app.title()}  —  пробный период: осталось {days_left} дн.")
+    app.mainloop()

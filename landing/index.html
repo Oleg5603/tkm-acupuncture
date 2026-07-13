@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ТКМ — программа подбора акупунктурных точек для специалистов | Windows</title>
+<meta name="description" content="Профессиональная программа для подбора акупунктурных точек по традиционной китайской медицине: анализ жалоб, метод Риодораку, 10 правил ТКМ, генерация протокола лечения в Word. Бесплатная демо-версия на 7 дней.">
+<meta name="keywords" content="акупунктура программа, ТКМ софт, подбор точек акупунктуры, риодораку программа, меридианы программа, протокол иглоукалывания, традиционная китайская медицина, акупунктурные точки подбор, программа для рефлексотерапевта">
+<meta name="author" content="ТКМ">
+<link rel="canonical" href="http://tkm.ru/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ТКМ — программа подбора акупунктурных точек">
+<meta property="og:description" content="Анализ жалоб и Риодораку, 10 правил ТКМ, автогенерация протокола лечения. Демо-версия — 7 дней бесплатно.">
+<meta property="og:image" content="http://tkm.ru/assets/og-image.png">
+<meta property="og:url" content="http://tkm.ru/">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="ТКМ">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ТКМ — программа подбора акупунктурных точек">
+<meta name="twitter:description" content="Анализ жалоб и Риодораку, 10 правил ТКМ, автогенерация протокола лечения. Демо-версия — 7 дней бесплатно.">
+<meta name="twitter:image" content="http://tkm.ru/assets/og-image.png">
+
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="shortcut icon" href="assets/favicon.ico">
+
+<!-- Structured data: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ТКМ — Подбор акупунктурных точек",
+  "operatingSystem": "Windows",
+  "applicationCategory": "MedicalApplication",
+  "description": "Программа для специалистов по традиционной китайской медицине: подбор акупунктурных точек по жалобам пациента и показателям Риодораку, применение классических правил ТКМ, генерация протокола лечения в Word.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "RUB",
+    "description": "Бесплатная демо-версия, пробный период 7 дней"
+  },
+  "url": "http://tkm.ru/",
+  "inLanguage": "ru"
+}
+</script>
+
+<!-- FAQ structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Сколько длится пробный период?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Демо-версия работает 7 дней с момента первого запуска, без ограничений по функциям." }
+    },
+    {
+      "@type": "Question",
+      "name": "На каких системах работает программа?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Программа работает на Windows 10 и Windows 11, установка Python не требуется." }
+    },
+    {
+      "@type": "Question",
+      "name": "Как получить полную версию после оплаты?",
+      "acceptedAnswer": { "@type": "Answer", "text": "После оплаты ссылка на скачивание рабочей версии без ограничений присылается вручную по указанным контактным данным." }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --bg: #0b1520;
+    --bg-card: #101d2b;
+    --bg-card-alt: #14243570;
+    --accent: #3fb6e8;
+    --accent-soft: #2a4a6a;
+    --text: #e8f0fa;
+    --text-dim: #8aa4c0;
+    --green: #2ecc71;
+    --border: #1e3348;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  a { color: var(--accent); }
+  img { max-width: 100%; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+  header.hero {
+    padding: 64px 0 56px;
+    background:
+      radial-gradient(1200px 500px at 80% -10%, #143452 0%, transparent 60%),
+      radial-gradient(900px 400px at 0% 0%, #0f2436 0%, transparent 55%);
+    border-bottom: 1px solid var(--border);
+  }
+  .badge {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--accent);
+    background: #123049;
+    border: 1px solid #1c4a6e;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-size: clamp(28px, 4.4vw, 44px);
+    line-height: 1.15;
+    margin: 0 0 18px;
+    max-width: 820px;
+  }
+  h1 span { color: var(--accent); }
+  .lead {
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 640px;
+    margin: 0 0 34px;
+  }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 26px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform .12s ease, filter .12s ease;
+  }
+  .btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-demo {
+    background: linear-gradient(135deg, #2b8ac2, #1e5f8f);
+    color: #fff;
+  }
+  .btn-buy {
+    background: linear-gradient(135deg, #2ecc71, #1f9c56);
+    color: #06210f;
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .fine {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 10px;
+  }
+
+  section { padding: 60px 0; }
+  section.alt { background: #0d1826; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  h2 { font-size: clamp(22px, 3vw, 30px); margin: 0 0 10px; }
+  .sub { color: var(--text-dim); margin: 0 0 36px; max-width: 620px; }
+
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  @media (max-width: 820px) { .grid3, .grid2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 17px; }
+  .card p { margin: 0; color: var(--text-dim); font-size: 14.5px; }
+  .card .icon { font-size: 26px; margin-bottom: 12px; display: block; }
+
+  .rules-list { columns: 2; column-gap: 30px; }
+  @media (max-width: 700px) { .rules-list { columns: 1; } }
+  .rules-list li { break-inside: avoid; margin-bottom: 12px; color: var(--text-dim); font-size: 14.5px; }
+  .rules-list li b { color: var(--text); }
+
+  .pricing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 820px) { .pricing { grid-template-columns: 1fr; } }
+  .plan {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+  }
+  .plan.highlight {
+    border-color: #2ecc7155;
+    background: linear-gradient(180deg, #12291c 0%, var(--bg-card) 60%);
+  }
+  .plan h3 { margin: 0 0 6px; font-size: 20px; }
+  .plan .price { font-size: 30px; font-weight: 700; margin: 10px 0 18px; }
+  .plan .price small { font-size: 14px; font-weight: 400; color: var(--text-dim); }
+  .plan ul { padding-left: 20px; margin: 0 0 24px; color: var(--text-dim); font-size: 14.5px; }
+  .plan ul li { margin-bottom: 8px; }
+  .plan .btn { justify-content: center; margin-top: auto; }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 0;
+  }
+  .faq-item summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::before { content: "+ "; color: var(--accent); }
+  .faq-item[open] summary::before { content: "– "; }
+  .faq-item p { color: var(--text-dim); margin: 10px 0 0; }
+
+  footer {
+    padding: 34px 0;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13.5px;
+    text-align: center;
+  }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 820px) { .steps { grid-template-columns: 1fr; } }
+  .step-num {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent-soft); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; margin-bottom: 12px;
+  }
+
+  /* ── Модальные окна ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(4, 10, 18, 0.72);
+    align-items: center; justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal h3 { margin: 0 0 10px; font-size: 20px; }
+  .modal-text { color: var(--text-dim); font-size: 14.5px; margin: 0 0 16px; }
+  .modal-input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0c1622;
+    color: var(--text);
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .modal-input:focus { outline: none; border-color: var(--accent); }
+  .modal-error {
+    display: none;
+    color: #e74c3c;
+    font-size: 13px;
+    text-align: left;
+    margin: 0 0 10px;
+  }
+  .modal-error.show { display: block; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 8px; }
+  .card-number {
+    font-family: "Consolas", monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
+    background: #0c1622;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    user-select: all;
+    cursor: pointer;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 18px;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">Windows · без установки Python</span>
+    <h1>Подбор акупунктурных точек по <span>жалобам пациента и Риодораку</span> — за секунды, а не часы</h1>
+    <p class="lead">
+      Программа для специалистов ТКМ и рефлексотерапевтов: анализирует симптомы и показатели
+      Риодораку, применяет 10 классических правил (мать-сын, полдень-полночь, ло-пункты и др.)
+      и формирует готовый протокол лечения с объяснением логики подбора.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-demo" href="assets/downloads/TKM-demo.zip" download>
+        ⬇ Скачать демо-версию (7 дней бесплатно)
+      </a>
+      <a class="btn btn-buy" href="#buy">
+        Купить полную версию
+      </a>
+    </div>
+    <p class="fine">Демо-версия — полнофункциональная, без ограничений возможностей. Windows 10/11, 68 МБ.</p>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Что умеет программа</h2>
+    <p class="sub">Три режима ввода данных и полный набор классических правил традиционной китайской медицины.</p>
+    <div class="grid3">
+      <div class="card">
+        <span class="icon">🩺</span>
+        <h3>Подбор по жалобам</h3>
+        <p>500+ симптомов в удобном каталоге по категориям, поиск, возможность добавить свои. Автоматический расчёт поражённых меридианов.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📊</span>
+        <h3>Метод Риодораку</h3>
+        <p>Ввод 24 показателей (12 меридианов × 2 стороны), автоматический расчёт отклонений и наглядный график дисбаланса.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🏥</span>
+        <h3>База готовых диагнозов</h3>
+        <p>Быстрый протокол по распространённым диагнозам без ручного ввода симптомов — для типовых случаев на приёме.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📄</span>
+        <h3>Экспорт в Word</h3>
+        <p>Готовый протокол с точками, действием, обоснованием и объяснением принципов ТКМ — сразу в файл .docx или на печать.</p>
+      </div>
+      <div class="card">
+        <span class="icon">⚡</span>
+        <h3>Учёт острых состояний</h3>
+        <p>Отдельный режим для острой боли и спазма — программа автоматически добавляет Xi-точки в протокол.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🧭</span>
+        <h3>Приоритет восстановления</h3>
+        <p>Показывает, какой меридиан восстанавливать первым, и объясняет основание — отклонение, жалобы, состояние «матери».</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="rules">
+  <div class="wrap">
+    <h2>10 классических правил ТКМ — встроены в алгоритм</h2>
+    <p class="sub">Программа не просто ищет точки по симптому — она применяет полноценную систему принципов традиционной китайской медицины.</p>
+    <ul class="rules-list">
+      <li><b>Мать-сын (Шэн-цикл)</b> — тонизация/седация по порождающему циклу пяти элементов</li>
+      <li><b>Полдень-полночь (Цзы-у)</b> — воздействие на антагониста активного меридиана</li>
+      <li><b>Муж-жена (Ко-цикл)</b> — снятие угнетающего избытка</li>
+      <li><b>Дед-внук</b> — опосредованное укрепление через смежный элемент</li>
+      <li><b>Ло-пункты</b> — юань-ло метод для дисбаланса пары меридианов</li>
+      <li><b>Пять антиков (Шу-точки)</b> — точки матери/сына по элементу меридиана</li>
+      <li><b>Восемь чудесных меридианов</b> — для хронических конституциональных нарушений</li>
+      <li><b>Xi-точки</b> — противоболевые точки при острых состояниях</li>
+      <li><b>Сезонность</b> — корректировка приоритета по текущему сезону</li>
+      <li><b>Конституция (Ба-ган)</b> — Инь/Ян, Пустота/Полнота, Холод/Жар</li>
+    </ul>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>Как начать работу</h2>
+    <div class="steps">
+      <div class="card">
+        <div class="step-num">1</div>
+        <h3>Скачайте демо-версию</h3>
+        <p>Архив ~68 МБ, распакуйте и запустите — Python устанавливать не нужно.</p>
+      </div>
+      <div class="card">
+        <div class="step-num">2</div>
+        <h3>Пользуйтесь 7 дней бесплатно</h3>
+        <p>Полный функционал без ограничений — оцените программу на реальных случаях.</p>
+      </div>
+      <div class="card">
+        <div class="step-num">3</div>
+        <h3>Купите полную версию</h3>
+        <p>После оплаты вы получите ссылку на рабочую версию без ограничения по времени.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="buy">
+  <div class="wrap">
+    <h2>Демо или полная версия</h2>
+    <p class="sub">Обе версии содержат одинаковый функционал — разница только в сроке действия.</p>
+    <div class="pricing">
+      <div class="plan">
+        <h3>Демо-версия</h3>
+        <div class="price">Бесплатно <small>/ 7 дней</small></div>
+        <ul>
+          <li>Полный функционал без ограничений</li>
+          <li>Все три режима ввода данных</li>
+          <li>Экспорт протокола в Word</li>
+          <li>Работает 7 дней с первого запуска</li>
+        </ul>
+        <a class="btn btn-ghost" href="assets/downloads/TKM-demo.zip" download>⬇ Скачать демо</a>
+      </div>
+      <div class="plan highlight">
+        <h3>Полная версия</h3>
+        <div class="price">4 350 ₽ <small>/ бессрочно</small></div>
+        <ul>
+          <li>Работает без ограничения по времени</li>
+          <li>Без пароля и триал-экрана</li>
+          <li>Все обновления функционала</li>
+          <li>Ссылка на скачивание — сразу после оплаты</li>
+        </ul>
+        <button class="btn btn-buy" type="button" onclick="openEmailModal()">Оформить покупку</button>
+      </div>
+    </div>
+    <p class="fine">
+      После оплаты ссылка на скачивание рабочей версии откроется автоматически.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════ Модальные окна покупки ═══════════ -->
+
+<div class="modal-overlay" id="modalOverlay">
+
+  <!-- Шаг 1: e-mail -->
+  <div class="modal" id="modalEmail">
+    <h3>Покупка полной версии</h3>
+    <p class="modal-text">Стоимость: <b>4 350 ₽</b>. Укажите e-mail — на него (и в системе) сохранится ваша заявка, а после оплаты откроется ссылка на скачивание.</p>
+    <input class="modal-input" id="buyEmail" type="email" placeholder="you@example.com" autocomplete="email">
+    <p class="modal-error" id="buyEmailError">Введите корректный e-mail</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" type="button" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-buy" type="button" onclick="submitEmail()">Продолжить</button>
+    </div>
+  </div>
+
+  <!-- Шаг 2: реквизиты оплаты -->
+  <div class="modal" id="modalPay" style="display:none">
+    <h3>Оплата — 4 350 ₽</h3>
+    <p class="modal-text">Отсканируйте QR-код или переведите на карту вручную, затем нажмите «Я оплатил(а)».</p>
+    <img src="assets/payment-qr.png" alt="QR-код для оплаты" style="width:180px; height:180px; margin:0 auto 14px; display:block; border-radius:8px;">
+    <div class="card-number" id="cardNumber">5536 9141 5967 4112</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" type="button" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-buy" type="button" onclick="confirmPayment()">Я оплатил(а)</button>
+    </div>
+  </div>
+
+  <!-- Шаг 3: обработка оплаты -->
+  <div class="modal" id="modalProcessing" style="display:none">
+    <div class="spinner"></div>
+    <h3>Проходит оплата</h3>
+    <p class="modal-text">Проверяем платёж, подождите несколько секунд…</p>
+  </div>
+
+  <!-- Шаг 3: ссылка на скачивание -->
+  <div class="modal" id="modalDone" style="display:none">
+    <h3>Оплата подтверждена ✅</h3>
+    <p class="modal-text">Полная версия ТКМ без ограничения по времени, ссылка также отправлена на ваш e-mail.</p>
+    <a class="btn btn-buy" id="fullDownloadLink" href="assets/downloads/TKM-full.zip" download style="width:100%; justify-content:center; margin-top:6px;">⬇ Скачать полную версию</a>
+    <button class="btn btn-ghost" type="button" onclick="closeModal()" style="width:100%; justify-content:center; margin-top:10px;">Закрыть</button>
+  </div>
+
+</div>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>Частые вопросы</h2>
+    <details class="faq-item" open>
+      <summary>Сколько длится пробный период?</summary>
+      <p>Демо-версия работает 7 дней с момента первого запуска, без ограничений по функциям.</p>
+    </details>
+    <details class="faq-item">
+      <summary>На каких системах работает программа?</summary>
+      <p>Программа работает на Windows 10 и Windows 11, установка Python не требуется — всё уже собрано в один пакет.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Как получить полную версию после оплаты?</summary>
+      <p>После оплаты ссылка на скачивание рабочей версии без ограничений присылается вручную по указанным вами контактным данным.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Нужен ли интернет для работы программы?</summary>
+      <p>Нет, программа работает полностью локально, интернет не требуется — все расчёты выполняются на вашем компьютере.</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    © <span id="year"></span> ТКМ — программа подбора акупунктурных точек. <a href="mailto:info@tkm.ru">info@tkm.ru</a>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+function openEmailModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modalEmail').style.display = 'block';
+  document.getElementById('modalPay').style.display = 'none';
+  document.getElementById('modalProcessing').style.display = 'none';
+  document.getElementById('modalDone').style.display = 'none';
+  document.getElementById('buyEmailError').classList.remove('show');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function (e) {
+  if (e.target === this) closeModal();
+});
+
+function submitEmail() {
+  const input = document.getElementById('buyEmail');
+  const email = input.value.trim();
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!valid) {
+    document.getElementById('buyEmailError').classList.add('show');
+    return;
+  }
+  document.getElementById('buyEmailError').classList.remove('show');
+
+  // Сохраняем e-mail на сервере (папка ТКМ)
+  fetch('save-email.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'email=' + encodeURIComponent(email)
+  }).catch(function () { /* сеть недоступна — не блокируем демонстрацию оплаты */ });
+
+  document.getElementById('modalEmail').style.display = 'none';
+  document.getElementById('modalPay').style.display = 'block';
+}
+
+function confirmPayment() {
+  document.getElementById('modalPay').style.display = 'none';
+  document.getElementById('modalProcessing').style.display = 'block';
+
+  setTimeout(function () {
+    document.getElementById('modalProcessing').style.display = 'none';
+    document.getElementById('modalDone').style.display = 'block';
+  }, 10000);
+}
+</script>
+</body>
+</html>
