@@ -162,6 +162,23 @@
     color: var(--text-dim);
     margin-top: 10px;
   }
+  .dl-badge {
+    position: fixed;
+    bottom: 12px;
+    z-index: 40;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--card, rgba(0,0,0,0.35));
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 10px;
+    min-width: 20px;
+    text-align: center;
+    pointer-events: none;
+  }
+  #dlCountDemo { left: 12px; }
+  #dlCountFull { right: 12px; }
 
   section { padding: 60px 0; }
   section.alt { background: #0d1826; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -321,7 +338,7 @@
       и формирует готовый протокол лечения с объяснением логики подбора.
     </p>
     <div class="cta-row">
-      <a class="btn btn-demo" href="assets/downloads/TKM-demo.zip" download>
+      <a class="btn btn-demo dl-link" data-dl="demo" href="assets/downloads/TKM-demo.zip" download>
         ⬇ Скачать демо-версию (7 дней бесплатно)
       </a>
       <a class="btn btn-buy" href="#buy">
@@ -329,6 +346,7 @@
       </a>
     </div>
     <p class="fine">Демо-версия — полнофункциональная, без ограничений возможностей. Windows 10/11, 68 МБ.</p>
+    <p class="dl-badge" id="dlCountDemo" title="Скачиваний демо">—</p>
   </div>
 </header>
 
@@ -427,7 +445,7 @@
           <li>Экспорт протокола в Word</li>
           <li>Работает 7 дней с первого запуска</li>
         </ul>
-        <a class="btn btn-ghost" href="assets/downloads/TKM-demo.zip" download>⬇ Скачать демо</a>
+        <a class="btn btn-ghost dl-link" data-dl="demo" href="assets/downloads/TKM-demo.zip" download>⬇ Скачать демо</a>
       </div>
       <div class="plan highlight">
         <h3>Полная версия</h3>
@@ -486,7 +504,8 @@
   <div class="modal" id="modalDone" style="display:none">
     <h3>Оплата подтверждена ✅</h3>
     <p class="modal-text">Полная версия ТКМ без ограничения по времени, ссылка также отправлена на ваш e-mail.</p>
-    <a class="btn btn-buy" id="fullDownloadLink" href="assets/downloads/TKM-full.zip" download style="width:100%; justify-content:center; margin-top:6px;">⬇ Скачать полную версию</a>
+    <a class="btn btn-buy dl-link" data-dl="full" id="fullDownloadLink" href="assets/downloads/TKM-full.zip" download style="width:100%; justify-content:center; margin-top:6px;">⬇ Скачать полную версию</a>
+    <p class="dl-badge" id="dlCountFull" title="Скачиваний рабочей версии">—</p>
     <button class="btn btn-ghost" type="button" onclick="closeModal()" style="width:100%; justify-content:center; margin-top:10px;">Закрыть</button>
   </div>
 
@@ -514,6 +533,29 @@
   </div>
 </section>
 
+<section class="wrap" id="feedback" style="max-width:640px; margin:0 auto; padding:40px 16px;">
+  <h2>Обратная связь и рекомендации</h2>
+  <p class="fine" style="margin-bottom:16px;">Нашли ошибку, есть пожелание или хотите что-то посоветовать по программе — напишите здесь.</p>
+  <form id="feedbackForm">
+    <div style="margin-bottom:12px;">
+      <label>Какой версией пользуетесь?</label><br>
+      <label style="margin-right:16px; font-weight:normal;"><input type="radio" name="version" value="simple" checked> Простая</label>
+      <label style="font-weight:normal;"><input type="radio" name="version" value="pro"> Профессиональная</label>
+    </div>
+    <div style="margin-bottom:12px;">
+      <input type="text" name="name" placeholder="Имя (необязательно)" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:inherit;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <input type="text" name="contact" placeholder="E-mail или телефон для связи (необязательно)" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:inherit;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <textarea name="message" placeholder="Ваш отзыв или рекомендация" required rows="4" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:inherit; resize:vertical;"></textarea>
+    </div>
+    <button type="submit" class="btn btn-ghost">Отправить</button>
+    <p class="fine" id="feedbackStatus" style="margin-top:10px;"></p>
+  </form>
+</section>
+
 <footer>
   <div class="wrap">
     © <span id="year"></span> ТКМ — программа подбора акупунктурных точек. <a href="mailto:info@tkm.ru">info@tkm.ru</a>
@@ -522,6 +564,47 @@
 
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
+
+function refreshDlCount(type) {
+  fetch('count.php?type=' + type).then(function (r) { return r.json(); }).then(function (d) {
+    var el = document.getElementById(type === 'demo' ? 'dlCountDemo' : 'dlCountFull');
+    if (el) el.textContent = d.count;
+  }).catch(function () {});
+}
+
+document.querySelectorAll('.dl-link').forEach(function (link) {
+  link.addEventListener('click', function () {
+    var type = link.getAttribute('data-dl');
+    fetch('count.php?type=' + type, { method: 'POST' }).then(function (r) { return r.json(); }).then(function (d) {
+      var el = document.getElementById(type === 'demo' ? 'dlCountDemo' : 'dlCountFull');
+      if (el) el.textContent = d.count;
+    }).catch(function () {});
+  });
+});
+
+refreshDlCount('demo');
+refreshDlCount('full');
+
+document.getElementById('feedbackForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var form = e.target;
+  var statusEl = document.getElementById('feedbackStatus');
+  var data = new FormData(form);
+  statusEl.textContent = 'Отправка...';
+  fetch('feedback.php', { method: 'POST', body: data })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.ok) {
+        statusEl.textContent = 'Спасибо! Сообщение отправлено.';
+        form.reset();
+      } else {
+        statusEl.textContent = 'Заполните сообщение и попробуйте снова.';
+      }
+    })
+    .catch(function () {
+      statusEl.textContent = 'Не удалось отправить. Попробуйте позже.';
+    });
+});
 
 function openEmailModal() {
   document.getElementById('modalOverlay').classList.add('open');
