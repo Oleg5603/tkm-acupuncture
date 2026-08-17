@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Атлас точек ТКМ — Точка опоры</title>
+  <meta name="description" content="Справочный атлас точек и меридианов традиционной китайской медицины.">
+  <link rel="stylesheet" href="assets/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Prata&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="topnote">Справочник для обучения · Не ставит диагноз и не назначает лечение</div>
+<header class="site-header"><div class="wrap nav"><a class="brand" href="index.html"><span class="mark"></span>Точка опоры</a><nav class="links"><a href="index.html">Главная</a><a aria-current="page" href="programs.html">Атлас ТКМ</a><a href="faq.html">Вопросы</a><a href="about.html">Методика</a></nav><button class="menu" aria-label="Открыть меню">☰</button></div></header>
+<main>
+  <section class="page-hero"><div class="wrap"><div class="eyebrow">Открытый справочник</div><h1>Атлас точек и меридианов ТКМ</h1><p class="lead">Поиск по 408 точкам. Китайские названия сохранены из источника, а группы меридианов подписаны по-русски. Показаны только справочное описание и ориентир расположения.</p></div></section>
+  <section class="section tint"><div class="wrap">
+    <div class="warning"><b>!</b><div><h3>Безопасность</h3><p>Не используйте справочник для самодиагностики, иглоукалывания или замены медицинской помощи. При ухудшении самочувствия прекратите самостоятельную практику и обратитесь к врачу.</p></div></div>
+    <div class="atlas-tools" aria-label="Фильтры атласа">
+      <label class="field"><span>Название или текст</span><input id="pointSearch" type="search" placeholder="Например: 合谷" autocomplete="off"></label>
+      <label class="field"><span>Меридиан</span><select id="meridianFilter"><option value="">Все меридианы</option></select></label>
+    </div>
+    <p class="atlas-status" id="atlasStatus" role="status">Загрузка справочника…</p>
+    <div class="point-grid" id="pointGrid" aria-live="polite"></div>
+    <button class="btn light load-more" id="loadMore" type="button" hidden>Показать ещё</button>
+    <noscript><div class="notice">Для поиска по атласу необходимо включить JavaScript.</div></noscript>
+  </div></section>
+</main>
+<footer><div class="wrap foot"><span>© 2026 Точка опоры</span><nav><a href="THIRD_PARTY_NOTICES.txt">Источник и лицензия</a><a href="privacy.html">Конфиденциальность</a></nav></div></footer>
+<script src="assets/app.js" defer></script>
+</body></html>
