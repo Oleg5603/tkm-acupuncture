@@ -7,5 +7,9 @@ app/build/
 app/build_full/
 app/dist/
 app/dist_full/
-app/*.spec
 landing/assets/downloads/
+private-artifacts/
+.venv-build/
+release-candidate/
+release-full/
+release-output/

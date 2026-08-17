@@ -454,13 +454,13 @@
           <li>Работает без ограничения по времени</li>
           <li>Без пароля и триал-экрана</li>
           <li>Все обновления функционала</li>
-          <li>Ссылка на скачивание — сразу после оплаты</li>
+          <li>Персональная ссылка — после ручной проверки оплаты</li>
         </ul>
         <button class="btn btn-buy" type="button" onclick="openEmailModal()">Оформить покупку</button>
       </div>
     </div>
     <p class="fine">
-      После оплаты ссылка на скачивание рабочей версии откроется автоматически.
+      После оплаты мы вручную проверим платёж и отправим персональную ссылку на указанный e-mail.
     </p>
   </div>
 </section>
@@ -472,19 +472,19 @@
   <!-- Шаг 1: e-mail -->
   <div class="modal" id="modalEmail">
     <h3>Покупка полной версии</h3>
-    <p class="modal-text">Стоимость: <b>4 350 ₽</b>. Укажите e-mail — на него (и в системе) сохранится ваша заявка, а после оплаты откроется ссылка на скачивание.</p>
+    <p class="modal-text">Стоимость: <b>4 350 ₽</b>. Укажите e-mail — мы сохраним заявку, вручную проверим платёж и отправим на этот адрес персональную ссылку.</p>
     <input class="modal-input" id="buyEmail" type="email" placeholder="you@example.com" autocomplete="email">
     <p class="modal-error" id="buyEmailError">Введите корректный e-mail</p>
     <div class="modal-actions">
       <button class="btn btn-ghost" type="button" onclick="closeModal()">Отмена</button>
-      <button class="btn btn-buy" type="button" onclick="submitEmail()">Продолжить</button>
+      <button class="btn btn-buy" id="submitEmailButton" type="button" onclick="submitEmail()">Продолжить</button>
     </div>
   </div>
 
   <!-- Шаг 2: реквизиты оплаты -->
   <div class="modal" id="modalPay" style="display:none">
     <h3>Оплата — 4 350 ₽</h3>
-    <p class="modal-text">Отсканируйте QR-код или переведите на карту вручную, затем нажмите «Я оплатил(а)».</p>
+    <p class="modal-text">Отсканируйте QR-код или переведите на карту вручную, затем нажмите «Я оплатил(а)». Платёж будет проверен вручную.</p>
     <img src="assets/payment-qr.png" alt="QR-код для оплаты" style="width:180px; height:180px; margin:0 auto 14px; display:block; border-radius:8px;">
     <div class="card-number" id="cardNumber">5536 9141 5967 4112</div>
     <div class="modal-actions">
@@ -493,19 +493,10 @@
     </div>
   </div>
 
-  <!-- Шаг 3: обработка оплаты -->
-  <div class="modal" id="modalProcessing" style="display:none">
-    <div class="spinner"></div>
-    <h3>Проходит оплата</h3>
-    <p class="modal-text">Проверяем платёж, подождите несколько секунд…</p>
-  </div>
-
-  <!-- Шаг 3: ссылка на скачивание -->
+  <!-- Шаг 3: заявка передана на ручную проверку -->
   <div class="modal" id="modalDone" style="display:none">
-    <h3>Оплата подтверждена ✅</h3>
-    <p class="modal-text">Полная версия ТКМ без ограничения по времени, ссылка также отправлена на ваш e-mail.</p>
-    <a class="btn btn-buy dl-link" data-dl="full" id="fullDownloadLink" href="assets/downloads/TKM-full.zip" download style="width:100%; justify-content:center; margin-top:6px;">⬇ Скачать полную версию</a>
-    <p class="dl-badge" id="dlCountFull" title="Скачиваний рабочей версии">—</p>
+    <h3>Заявка принята ✅</h3>
+    <p class="modal-text">Мы вручную проверим платёж и отправим персональную ссылку на полную версию ТКМ на указанный e-mail. Автоматическая выдача не выполняется.</p>
     <button class="btn btn-ghost" type="button" onclick="closeModal()" style="width:100%; justify-content:center; margin-top:10px;">Закрыть</button>
   </div>
 
@@ -583,7 +574,6 @@ document.querySelectorAll('.dl-link').forEach(function (link) {
 });
 
 refreshDlCount('demo');
-refreshDlCount('full');
 
 document.getElementById('feedbackForm').addEventListener('submit', function (e) {
   e.preventDefault();
@@ -610,7 +600,6 @@ function openEmailModal() {
   document.getElementById('modalOverlay').classList.add('open');
   document.getElementById('modalEmail').style.display = 'block';
   document.getElementById('modalPay').style.display = 'none';
-  document.getElementById('modalProcessing').style.display = 'none';
   document.getElementById('modalDone').style.display = 'none';
   document.getElementById('buyEmailError').classList.remove('show');
 }
@@ -623,35 +612,45 @@ document.getElementById('modalOverlay').addEventListener('click', function (e) {
   if (e.target === this) closeModal();
 });
 
-function submitEmail() {
+async function submitEmail() {
   const input = document.getElementById('buyEmail');
+  const error = document.getElementById('buyEmailError');
+  const button = document.getElementById('submitEmailButton');
   const email = input.value.trim();
   const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!valid) {
-    document.getElementById('buyEmailError').classList.add('show');
+    error.textContent = 'Введите корректный e-mail';
+    error.classList.add('show');
     return;
   }
-  document.getElementById('buyEmailError').classList.remove('show');
+  error.classList.remove('show');
+  button.disabled = true;
+  button.textContent = 'Сохраняем заявку…';
 
-  // Сохраняем e-mail на сервере (папка ТКМ)
-  fetch('save-email.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'email=' + encodeURIComponent(email)
-  }).catch(function () { /* сеть недоступна — не блокируем демонстрацию оплаты */ });
-
-  document.getElementById('modalEmail').style.display = 'none';
-  document.getElementById('modalPay').style.display = 'block';
+  try {
+    const response = await fetch('save-email.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'email=' + encodeURIComponent(email)
+    });
+    const data = await response.json();
+    if (!response.ok || data.ok !== true || !data.order_id) {
+      throw new Error('order_not_saved');
+    }
+    document.getElementById('modalEmail').style.display = 'none';
+    document.getElementById('modalPay').style.display = 'block';
+  } catch (err) {
+    error.textContent = 'Не удалось сохранить заявку. Проверьте соединение и повторите.';
+    error.classList.add('show');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Продолжить';
+  }
 }
 
 function confirmPayment() {
   document.getElementById('modalPay').style.display = 'none';
-  document.getElementById('modalProcessing').style.display = 'block';
-
-  setTimeout(function () {
-    document.getElementById('modalProcessing').style.display = 'none';
-    document.getElementById('modalDone').style.display = 'block';
-  }, 10000);
+  document.getElementById('modalDone').style.display = 'block';
 }
 </script>
 </body>

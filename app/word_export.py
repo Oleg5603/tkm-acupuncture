@@ -34,6 +34,11 @@ ACTION_HEX = {
     "обезболивание": "7a5500",
 }
 
+SAFETY_NOTICE = (
+    "Результат программы является справочно-расчётным черновиком. "
+    "Он не заменяет диагностику, клиническое решение и проверку квалифицированным специалистом."
+)
+
 
 def generate_word(
     scores: dict,
@@ -61,6 +66,12 @@ def generate_word(
         f"Дата: {datetime.date.today().strftime('%d.%m.%Y')}    "
         f"Точек в протоколе: {len(protocol)}"
     ).runs[0].font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+
+    notice = doc.add_paragraph()
+    notice_run = notice.add_run(SAFETY_NOTICE)
+    notice_run.bold = True
+    notice_run.font.size = Pt(10)
+    notice_run.font.color.rgb = RGBColor(0x9B, 0x1C, 0x1C)
 
     doc.add_paragraph()
 

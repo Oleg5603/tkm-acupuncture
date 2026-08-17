@@ -16,7 +16,7 @@ from engine import (
     analyze_ryodoraku, generate_tcm_explanation, _ALL_SYMPTOMS
 )
 from word_export import generate_word
-from trial import check_trial
+from trial import activate_demo, check_trial
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -113,6 +113,14 @@ class App(ctk.CTk):
                           fg_color=color, hover_color="#4a5a6a",
                           width=w, height=30
                           ).pack(side="left", padx=2)
+
+        ctk.CTkLabel(
+            hdr,
+            text=("Справочно-расчётный черновик: не заменяет диагностику, "
+                  "клиническое решение и проверку специалистом."),
+            font=ctk.CTkFont(size=11), text_color="#f0a0a0",
+            justify="left", wraplength=900,
+        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(3, 0))
 
         self._result_frame = ctk.CTkScrollableFrame(
             result_outer, fg_color="#131c28", label_text="Протокол точек"
@@ -770,17 +778,28 @@ class App(ctk.CTk):
 
 
 if __name__ == "__main__":
-    from tkinter import messagebox
+    from tkinter import messagebox, simpledialog
 
     valid, days_left = check_trial()
     if not valid:
         root = ctk.CTk()
         root.withdraw()
-        messagebox.showerror(
-            "ТКМ — пробный период истёк",
-            "Пробный период (7 дней) закончился.\nОбратитесь для приобретения полной версии.",
+        password = simpledialog.askstring(
+            "ТКМ — активация Demo",
+            "Пробный период закончился.\nВведите пароль активации Demo:",
+            show="*",
+            parent=root,
         )
-        sys.exit(0)
+        if not password or not activate_demo(password):
+            messagebox.showerror(
+                "ТКМ — активация",
+                "Неверный пароль. Обратитесь для приобретения полной версии.",
+                parent=root,
+            )
+            root.destroy()
+            sys.exit(0)
+        root.destroy()
+        valid, days_left = check_trial()
 
     app = App()
     if days_left <= 2:
