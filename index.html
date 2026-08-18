@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ТКМ — понятный подбор точек</title>
+  <meta name="description" content="Понятный навигатор по точкам традиционной китайской медицины на основе русскоязычного Атласа Леднёва.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="#top" aria-label="ТКМ — на главную"><span>Т</span>ТКМ</a>
+      <nav aria-label="Основная навигация">
+        <a href="#how">Как работает</a>
+        <a href="#picker">Подбор точек</a>
+      </nav>
+      <a class="nav-action" href="#picker">Начать подбор</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Веб-приложение по атласу Леднёва</p>
+          <h1>Найдите нужные точки <em>без сложных терминов</em></h1>
+          <p class="lead">ТКМ помогает пройти путь от жалобы до понятного черновика протокола: определить связанные меридианы, разобраться в выборе точек и сохранить результат для проверки специалистом.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#picker">Подобрать точки</a>
+            <a class="button quiet" href="#how">Сначала разобраться</a>
+          </div>
+          <p class="trust"><span>✓</span> Без регистрации <span>✓</span> Понятные объяснения <span>✓</span> Русский атлас</p>
+        </div>
+        <aside class="hero-visual" aria-label="Что вы получите">
+          <div class="visual-top"><span class="pulse"></span><span>Пример результата</span></div>
+          <div class="body-map" aria-hidden="true"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="body-line"></span></div>
+          <div class="result-preview"><b>Локализация точки</b><span>Изображение и описание из первоисточника</span></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="intro wrap" id="how">
+      <div class="intro-heading">
+        <p class="eyebrow dark">Как это работает</p>
+        <h2>От вопроса до понятной памятки</h2>
+        <p>Профессиональная программа анализирует жалобы, диагнозы или измерения Риодораку. Веб-MVP начинает с простого справочного поиска и показывает, как будет устроен полный процесс.</p>
+      </div>
+      <div class="steps">
+        <article><span>01</span><div><h3>Исходные данные</h3><p>Жалобы, справочный диагноз или измерения Риодораку.</p></div></article>
+        <article><span>02</span><div><h3>Расчёт и объяснение</h3><p>Связанные меридианы, ранжированные точки и причина выбора.</p></div></article>
+        <article><span>03</span><div><h3>Проверка результата</h3><p>Черновик на 5, 7, 9 или все релевантные точки проверяет специалист.</p></div></article>
+      </div>
+    </section>
+
+    <section class="picker-section" id="picker">
+      <div class="wrap picker-shell">
+        <div class="picker-heading">
+          <div><p class="eyebrow dark">Доступно в веб-MVP</p><h2>Справочный поиск по жалобе</h2><p>Выберите пример или сформулируйте запрос самостоятельно. Сейчас это поиск совпадений в атласе, а не медицинский расчёт протокола.</p></div>
+          <span class="source-badge">Источник: Атлас Леднёва</span>
+        </div>
+
+        <div class="quick-choices" aria-label="Популярные запросы">
+          <button type="button" data-query="головная боль">Головная боль</button>
+          <button type="button" data-query="бессонница">Нарушения сна</button>
+          <button type="button" data-query="поясница">Поясница</button>
+          <button type="button" data-query="желудок">Желудок</button>
+          <button type="button" data-query="сустав">Суставы</button>
+        </div>
+
+        <form class="search-panel" id="searchForm">
+          <label class="search-field">
+            <span>Ваш запрос</span>
+            <div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.15A7.5 7.5 0 1 1 4 11.5a7.5 7.5 0 0 1 15 0Z"/></svg><input id="search" type="search" placeholder="Например: бессонница или E36" autocomplete="off"><button type="submit">Найти</button></div>
+          </label>
+          <button class="reset" id="clearFilters" type="button">Сбросить подбор</button>
+        </form>
+
+        <div class="result-head">
+          <div><span id="resultLabel">Материалы атласа</span><h2 id="resultCount">Загрузка…</h2></div>
+          <div class="selected-tools" id="selectedTools" hidden><span>Выбрано: <b id="selectedCount">0</b></span><button type="button" data-open-export>Скачать памятку</button></div>
+        </div>
+        <div id="atlasGrid" class="atlas-grid" aria-live="polite"></div>
+        <button id="loadMore" class="button more" type="button">Показать ещё</button>
+      </div>
+    </section>
+
+    <section class="about wrap">
+      <div><p class="eyebrow dark">О приложении</p><h2>Помощник, а не самостоятельный врач</h2></div>
+      <div class="about-copy"><p>Полная версия ТКМ систематизирует жалобы и измерения, определяет приоритетные меридианы и готовит объяснимый черновик протокола. Специалист выбирает объём — 5, 7, 9 или все релевантные точки — и вручную проверяет результат.</p><p>Веб-MVP пока предоставляет понятный поиск и карточки по русскоязычному Атласу Леднёва. Диагностический алгоритм, измерения Риодораку и рекомендации по травам не имитируются и будут подключены только после переноса и проверки расчётного ядра Windows-приложения.</p></div>
+    </section>
+
+    <section class="safety wrap" role="note"><span>i</span><div><strong>Важно знать</strong><p>Не выполняйте иглоукалывание и другие инвазивные процедуры самостоятельно. При боли, ухудшении состояния или тревожных симптомах обратитесь к врачу. Фактический результат индивидуален и не гарантируется.</p></div></section>
+  </main>
+
+  <footer><div class="wrap footer-grid"><div><a class="brand inverse" href="#top"><span>Т</span>ТКМ</a><p>Понятный навигатор по Атласу Леднёва.</p></div><div class="metrics"><span>Открытий на устройстве: <b id="localVisits">—</b></span><span>Время знакомства: <b id="sessionTime">00:00</b></span><small>Данные остаются только на этом устройстве.</small></div></div></footer>
+
+  <dialog id="detailDialog" class="dialog"><button class="dialog-close" data-close-dialog aria-label="Закрыть">×</button><div id="dialogContent"></div></dialog>
+  <dialog id="exportDialog" class="dialog export-dialog"><button class="dialog-close" data-close-dialog aria-label="Закрыть">×</button><p class="eyebrow dark">Готово к сохранению</p><h2>Скачать памятку</h2><p>Выберите удобный формат. В памятку попадут отмеченные материалы и ссылки на страницы атласа.</p><div class="export-options"><button type="button" data-export="txt"><b>TXT</b><span>Простой текст</span></button><button type="button" data-export="word"><b>Word</b><span>Документ с изображениями</span></button><button type="button" data-export="pdf"><b>PDF</b><span>Печать или сохранение</span></button></div></dialog>
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
