@@ -41,12 +41,21 @@ class LandingCommercialFlowTests(unittest.TestCase):
         self.assertIn("вручную проверим платёж", self.html)
         self.assertIn("персональную ссылку", self.html)
 
-    def test_order_capture_fails_closed(self):
-        self.assertIn("await fetch('save-email.php'", self.html)
-        self.assertIn("!response.ok", self.html)
-        self.assertIn("data.ok !== true", self.html)
-        self.assertIn("!data.order_id", self.html)
-        self.assertNotIn("не блокируем демонстрацию оплаты", self.html)
+    def test_github_pages_flow_does_not_call_php(self):
+        self.assertNotIn("fetch('save-email.php'", self.html)
+        self.assertNotIn("fetch('feedback.php'", self.html)
+        self.assertNotIn("fetch('count.php", self.html)
+        self.assertIn('href="mailto:ogp56@bk.ru', self.html)
+
+    def test_public_page_does_not_expose_payment_credentials(self):
+        self.assertNotIn("5536 9141 5967 4112", self.html)
+        self.assertNotIn("assets/payment-qr.png", self.html)
+
+    def test_accessibility_and_trust_basics(self):
+        self.assertIn('class="skip-link"', self.html)
+        self.assertIn('aria-label="Основная навигация"', self.html)
+        self.assertIn('id="trust"', self.html)
+        self.assertIn("Вспомогательный инструмент", self.html)
 
 
 if __name__ == "__main__":

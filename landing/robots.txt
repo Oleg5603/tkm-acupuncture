@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: http://tkm.ru/sitemap.xml
+Sitemap: https://oleg5603.github.io/tkm-acupuncture/sitemap.xml
