@@ -31,7 +31,6 @@ jobs:
           cp -R landing/assets public/assets
           rm -f public/assets/payment-qr.png
           test -s public/index.html
-          test -s public/assets/downloads/TKM-demo.zip
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

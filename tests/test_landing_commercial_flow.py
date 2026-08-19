@@ -57,6 +57,10 @@ class LandingCommercialFlowTests(unittest.TestCase):
         self.assertIn('id="trust"', self.html)
         self.assertIn("Вспомогательный инструмент", self.html)
 
+    def test_demo_request_has_no_broken_local_archive_link(self):
+        self.assertNotIn("assets/downloads/TKM-demo.zip", self.html)
+        self.assertIn("Получить демо", self.html)
+
 
 if __name__ == "__main__":
     unittest.main()
