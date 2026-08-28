@@ -4,6 +4,7 @@ from data.meridians import (
     TONING_SEDATING, YUAN_POINTS, LUO_POINTS, XI_POINTS, SYMPTOMS, POINT_TYPES
 )
 from data.symptoms_extended import SYMPTOMS_EXT
+from data.herbs import HERBS_BY_MERIDIAN
 
 _ALL_SYMPTOMS = {**SYMPTOMS_EXT, **SYMPTOMS}   # SYMPTOMS (meridians.py) имеет приоритет
 
@@ -47,7 +48,8 @@ def get_element_meridians(element: str) -> list[str]:
     return [k for k, v in MERIDIANS.items() if v["element"] == element]
 
 
-def build_protocol(scores: dict, acute_pain: bool = False) -> list[dict]:
+def build_protocol(scores: dict, acute_pain: bool = False,
+                   point_limit: int | None = 0) -> list[dict]:
     """
     Строит протокол 4–5 точек на сеанс.
     Приоритет:
@@ -58,7 +60,6 @@ def build_protocol(scores: dict, acute_pain: bool = False) -> list[dict]:
       5. Xi-точка (только при острой боли, заменяет п.4 если слот занят)
     Итого: не более 5 точек.
     """
-    MAX_POINTS = 5
     if not scores:
         return []
 
@@ -66,7 +67,7 @@ def build_protocol(scores: dict, acute_pain: bool = False) -> list[dict]:
     seen_pts: set[str] = set()
 
     def add(code, point, action, rule, score):
-        if point not in seen_pts and len(points) < MAX_POINTS:
+        if point not in seen_pts:
             seen_pts.add(point)
             m = MERIDIANS[code]
             pt_code = point.split(" ")[0]
@@ -82,7 +83,7 @@ def build_protocol(scores: dict, acute_pain: bool = False) -> list[dict]:
                 "point_desc": pdesc,
             })
 
-    top = list(scores.items())[:2]   # работаем с топ-2 меридианами
+    top = list(scores.items())[:2] if point_limit == 0 else list(scores.items())
 
     for idx, (code, score) in enumerate(top):
         m = MERIDIANS[code]
@@ -124,7 +125,22 @@ def build_protocol(scores: dict, acute_pain: bool = False) -> list[dict]:
             add(code, xi, "обезболивание",
                 f"Xi-точка: острая боль / спазм {MERIDIANS[code]['name']}", score)
 
-    return points
+    effective_limit = 5 if point_limit == 0 else point_limit
+    return points if effective_limit is None else points[:effective_limit]
+
+
+def recommend_herbs(scores: dict, limit: int = 3) -> list[dict]:
+    """Справочно подбирает фитокомплексы для ведущих меридианов."""
+    result = []
+    seen = set()
+    for code in scores:
+        herb = HERBS_BY_MERIDIAN.get(code)
+        if herb and herb["id"] not in seen:
+            seen.add(herb["id"])
+            result.append({**herb, "meridian": MERIDIANS[code]["name"]})
+        if len(result) >= limit:
+            break
+    return result
 
 
 def generate_tcm_explanation(scores: dict, protocol: list, selected_symptoms: list) -> str:

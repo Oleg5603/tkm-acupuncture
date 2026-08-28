@@ -45,6 +45,9 @@ def generate_word(
     protocol: list,
     selected_symptoms: list,
     tcm_text: str,
+    herbs: list | None = None,
+    patient: dict | None = None,
+    clinical: dict | None = None,
     filename: str = None
 ):
     doc = Document()
@@ -74,6 +77,18 @@ def generate_word(
     notice_run.font.color.rgb = RGBColor(0x9B, 0x1C, 0x1C)
 
     doc.add_paragraph()
+
+    if patient:
+        h = doc.add_heading("Пациент и текущий случай", 2)
+        h.runs[0].font.color.rgb = RGBColor(0x1a, 0x3a, 0x5a)
+        doc.add_paragraph(f"ФИО: {patient.get('full_name', '')}")
+        doc.add_paragraph(f"Возраст: {patient.get('age', '')}")
+        doc.add_paragraph(f"Контакт: {patient.get('contact', '')}")
+        clinical = clinical or {}
+        doc.add_paragraph(f"Жалобы/анамнез: {clinical.get('complaints', '')}")
+        doc.add_paragraph(f"Аллергии: {clinical.get('allergies', '')}")
+        doc.add_paragraph(f"Принимаемые лекарства: {clinical.get('medications', '')}")
+        doc.add_paragraph("Версии: tkmp-engine-1.0 / tkmp-knowledge-1.0")
 
     # ── Жалобы ──
     if selected_symptoms:
@@ -146,6 +161,22 @@ def generate_word(
                 r.font.size = Pt(10)
                 r.font.color.rgb = RGBColor(0x1a, 0x6b, 0x3a)
                 para.add_run(p["point_desc"]).font.size = Pt(10)
+
+    if herbs:
+        doc.add_paragraph()
+        h3 = doc.add_heading("Рекомендуемые травы и фитокомплексы", 2)
+        h3.runs[0].font.color.rgb = RGBColor(0x1a, 0x6b, 0x3a)
+        for herb in herbs:
+            para = doc.add_paragraph(style="List Bullet")
+            run = para.add_run(f"{herb['name']} — {herb['meridian']}")
+            run.bold = True
+            para.add_run(f"\nСостав: {herb['herbs']}\nВажно: {herb['caution']}")
+        warning = doc.add_paragraph(
+            "Фитотерапия приведена справочно. Перед применением необходима проверка "
+            "аллергий, беременности, противопоказаний и взаимодействий с лекарствами."
+        )
+        warning.runs[0].bold = True
+        warning.runs[0].font.color.rgb = RGBColor(0x9B, 0x1C, 0x1C)
 
     # ── Принципы ТКМ ──
     doc.add_paragraph()

@@ -5,7 +5,7 @@ a = Analysis(
     ['main_full.py'],
     pathex=['.'],
     binaries=[],
-    datas=[],
+    datas=[('point_atlas', 'point_atlas')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

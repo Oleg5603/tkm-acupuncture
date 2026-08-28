@@ -3,19 +3,15 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import customtkinter as ctk
 from tkinter import filedialog
-import matplotlib
-matplotlib.use("TkAgg")
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from PIL import Image, ImageOps
 
 from data.meridians import MERIDIANS
 from data.symptom_categories import CATALOG
 from data.diagnoses import DIAGNOSES
 from engine import (
     analyze_symptoms, build_protocol, priority_text,
-    analyze_ryodoraku, generate_tcm_explanation, _ALL_SYMPTOMS
+    analyze_ryodoraku, generate_tcm_explanation, recommend_herbs, _ALL_SYMPTOMS
 )
-from word_export import generate_word
 from trial import activate_demo, check_trial
 
 ctk.set_appearance_mode("dark")
@@ -35,6 +31,57 @@ ACTION_COLOR = {
     "седация":       "#e74c3c",
     "обезболивание": "#f39c12",
 }
+
+POINT_ATLAS = {
+    "C6": "arm-inner", "C7": "arm-inner", "C9": "hand-back",
+    "E34": "leg-front", "E41": "foot-top", "E45": "foot-top",
+    "F2": "foot-top", "F6": "leg-inner", "F8": "leg-inner",
+    "GI11": "hand-back", "GI2": "hand-back", "GI7": "arm-outer",
+    "IG3": "hand-back", "IG6": "arm-outer", "IG8": "arm-outer",
+    "MC4": "arm-inner", "MC6": "arm-inner", "MC7": "arm-inner",
+    "P5": "arm-inner", "P6": "arm-inner", "P9": "hand-back",
+    "R2": "foot-side", "R3": "foot-side", "R5": "foot-side",
+    "RP2": "foot-side", "RP3": "foot-side", "RP5": "foot-side",
+    "RP6": "leg-inner", "TR3": "hand-back", "TR6": "arm-outer",
+    "TR7": "arm-outer", "V40": "knee-side", "V60": "foot-side",
+    "V63": "foot-side", "VB34": "leg-front", "VB36": "leg-front",
+}
+
+# These scans have no EXIF orientation, so their upright display direction
+# must be explicit and stable after WEBP conversion and PyInstaller packaging.
+POINT_ATLAS_ROTATION = {
+    "arm-inner": -90,
+    "foot-side": 180,
+    "foot-top": -90,
+    "knee-side": -90,
+    "leg-front": -90,
+}
+
+
+def _resource_path(*parts: str) -> str:
+    root = getattr(sys, "_MEIPASS", os.path.dirname(__file__))
+    return os.path.join(root, *parts)
+
+
+def point_atlas_path(point: str) -> str | None:
+    code = str(point).split(" ", 1)[0]
+    image = POINT_ATLAS.get(code)
+    if not image:
+        return None
+    path = _resource_path("point_atlas", f"{image}.webp")
+    return path if os.path.isfile(path) else None
+
+
+def oriented_atlas_image(path: str) -> Image.Image:
+    source = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+    atlas_name = os.path.splitext(os.path.basename(path))[0]
+    angle = POINT_ATLAS_ROTATION.get(atlas_name, 0)
+    return source.rotate(angle, expand=True) if angle else source
+
+
+def fitted_image_size(source: Image.Image, max_width: int, max_height: int) -> tuple[int, int]:
+    scale = min(max_width / source.width, max_height / source.height)
+    return max(1, round(source.width * scale)), max(1, round(source.height * scale))
 
 
 def _load_custom() -> dict:
@@ -63,9 +110,18 @@ class App(ctk.CTk):
         self._symptom_vars: dict[str, ctk.BooleanVar] = {}
         self._last_scores: dict = {}
         self._last_protocol: list = []
+        self._last_herbs: list = []
+        self._point_count_var = ctk.StringVar(value="5")
         self._custom: dict = _load_custom()
         self._current_category: str = ""
         self._cat_buttons: dict = {}
+        self._suspend_recompute = False
+        self._diagnoses_built = False
+        self._symptom_search_job = None
+        self._diag_search_job = None
+        self._recompute_job = None
+        self._rendered_symptoms = None
+        self._rendered_diagnoses = None
 
         self._build_ui()
 
@@ -73,10 +129,11 @@ class App(ctk.CTk):
 
     def _build_ui(self):
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=2)
+        self.grid_rowconfigure(0, weight=1, minsize=180)
+        self.grid_rowconfigure(1, weight=0, minsize=270)
 
         self._tabs = ctk.CTkTabview(self)
+        self._tabs.configure(command=self._on_tab_change)
         self._tabs.grid(row=0, column=0, sticky="nsew", padx=10, pady=(10, 0))
         self._tabs.add("🩺 По жалобам")
         self._tabs.add("📊 Риодораку")
@@ -102,6 +159,12 @@ class App(ctk.CTk):
 
         btn_bar = ctk.CTkFrame(hdr, fg_color="transparent")
         btn_bar.grid(row=0, column=1, sticky="e")
+        ctk.CTkLabel(btn_bar, text="Точек:", text_color="#aac4e0").pack(side="left", padx=(2, 4))
+        ctk.CTkOptionMenu(
+            btn_bar, values=["5", "7", "9", "Все точки"],
+            variable=self._point_count_var, command=self._on_point_count,
+            width=105, height=30,
+        ).pack(side="left", padx=(0, 5))
         for txt, cmd, color, w in [
             ("⛶ Развернуть",    self._expand_protocol,     "#2a2a4a", 120),
             ("📖 Принципы ТКМ", self._show_tcm_principles, "#2a4a2a", 145),
@@ -129,7 +192,6 @@ class App(ctk.CTk):
 
         self._build_symptoms_tab()
         self._build_ryodoraku_tab()
-        self._build_diagnoses_tab()
 
     # ─────────────────────────── Вкладка жалоб ───────────────────────────────
 
@@ -220,8 +282,7 @@ class App(ctk.CTk):
         self._sel_label.pack(side="right", padx=10)
 
         # Инициализация
-        self._init_symptom_vars()
-        self._select_category("")
+        self._select_category(CATALOG[0][0] if CATALOG else "")
 
     def _init_symptom_vars(self):
         """Создаёт BooleanVar для каждого симптома (500 + кастомные)."""
@@ -245,8 +306,10 @@ class App(ctk.CTk):
             self._cat_buttons[""].configure(
                 fg_color="#1a4a6a" if cat_name == "" else "#1e2d3d"
             )
-        self._search_var.set("")
-        self._render_checkboxes(self._symptoms_for_category(cat_name))
+        if self._search_var.get():
+            self._search_var.set("")
+        else:
+            self._render_checkboxes(self._symptoms_for_category(cat_name))
 
     def _symptoms_for_category(self, cat_name: str) -> list[str]:
         if cat_name == "":
@@ -263,6 +326,10 @@ class App(ctk.CTk):
         return []
 
     def _render_checkboxes(self, symptoms: list[str]):
+        rendered = tuple(symptoms)
+        if rendered == self._rendered_symptoms:
+            return
+        self._rendered_symptoms = rendered
         for w in self._cb_frame.winfo_children():
             w.destroy()
 
@@ -296,6 +363,12 @@ class App(ctk.CTk):
             cb.pack(side="left", padx=6, pady=2)
 
     def _on_symptom_search(self, *_):
+        if self._symptom_search_job is not None:
+            self.after_cancel(self._symptom_search_job)
+        self._symptom_search_job = self.after(150, self._apply_symptom_search)
+
+    def _apply_symptom_search(self):
+        self._symptom_search_job = None
         q = self._search_var.get().strip().lower()
         if not q:
             self._render_checkboxes(self._symptoms_for_category(self._current_category))
@@ -315,13 +388,27 @@ class App(ctk.CTk):
             if name in self._selected:
                 self._selected.remove(name)
         self._sel_label.configure(text=f"Выбрано: {len(self._selected)}")
+        if not self._suspend_recompute:
+            self._schedule_recompute()
+
+    def _schedule_recompute(self):
+        if self._recompute_job is not None:
+            self.after_cancel(self._recompute_job)
+        self._recompute_job = self.after(80, self._run_scheduled_recompute)
+
+    def _run_scheduled_recompute(self):
+        self._recompute_job = None
         self._recompute()
 
     def _clear_symptoms(self):
-        for name in list(self._selected):
-            v = self._symptom_vars.get(name)
-            if v:
-                v.set(False)
+        self._suspend_recompute = True
+        try:
+            for name in list(self._selected):
+                v = self._symptom_vars.get(name)
+                if v:
+                    v.set(False)
+        finally:
+            self._suspend_recompute = False
         self._selected.clear()
         self._acute_var.set(False)
         self._sel_label.configure(text="Выбрано: 0")
@@ -454,6 +541,9 @@ class App(ctk.CTk):
     # ─────────────────────── Вкладка Диагнозы ────────────────────────────────
 
     def _build_diagnoses_tab(self):
+        if self._diagnoses_built:
+            return
+        self._diagnoses_built = True
         tab = self._tabs.tab("🏥 Диагнозы")
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_rowconfigure(1, weight=1)
@@ -482,11 +572,21 @@ class App(ctk.CTk):
         self._render_diagnoses(list(DIAGNOSES.keys()))
 
     def _on_diag_search(self, *_):
+        if self._diag_search_job is not None:
+            self.after_cancel(self._diag_search_job)
+        self._diag_search_job = self.after(150, self._apply_diag_search)
+
+    def _apply_diag_search(self):
+        self._diag_search_job = None
         q = self._diag_search_var.get().strip().lower()
         names = [n for n in DIAGNOSES if q in n.lower()] if q else list(DIAGNOSES.keys())
         self._render_diagnoses(names)
 
     def _render_diagnoses(self, names: list[str]):
+        rendered = tuple(sorted(names))
+        if rendered == self._rendered_diagnoses:
+            return
+        self._rendered_diagnoses = rendered
         for w in self._diag_frame.winfo_children():
             w.destroy()
         cols = 3
@@ -502,18 +602,19 @@ class App(ctk.CTk):
                 command=lambda n=name: self._apply_diagnosis(n)
             ).pack(side="left", padx=4, pady=1)
 
+    def _on_tab_change(self):
+        if self._tabs.get() == "🏥 Диагнозы":
+            self._build_diagnoses_tab()
+
     def _apply_diagnosis(self, name: str):
         scores = DIAGNOSES[name]
         self._last_scores = scores
-        self._last_protocol = build_protocol(scores, False)
+        self._last_protocol = build_protocol(scores, False, self._point_limit())
+        self._show_result(scores, self._last_protocol)
         self._priority_label.configure(
             text=f"Диагноз: {name}  |  " + priority_text(scores).split("\n")[0],
             text_color="#e8f0fe"
         )
-        for w in self._result_frame.winfo_children():
-            w.destroy()
-        for p in self._last_protocol:
-            self._add_card(p)
         self._tabs.set("🩺 По жалобам")
 
     # ─────────────────────────── Логика ──────────────────────────────────────
@@ -521,7 +622,7 @@ class App(ctk.CTk):
     def _recompute(self):
         scores = analyze_symptoms(self._selected)
         self._last_scores = scores
-        self._last_protocol = build_protocol(scores, self._acute_var.get())
+        self._last_protocol = build_protocol(scores, self._acute_var.get(), self._point_limit())
         self._show_result(scores, self._last_protocol)
 
     def _update_ryodoraku(self):
@@ -540,11 +641,16 @@ class App(ctk.CTk):
             return
         scores, details = analyze_ryodoraku(values)
         self._last_scores = scores
-        self._last_protocol = build_protocol(scores, False)
+        self._last_protocol = build_protocol(scores, False, self._point_limit())
         self._draw_ryodoraku_chart(details)
         self._show_result(scores, self._last_protocol)
 
     def _draw_ryodoraku_chart(self, details: dict):
+        import matplotlib
+        matplotlib.use("TkAgg")
+        import matplotlib.pyplot as plt
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
         if self._ryo_canvas:
             self._ryo_canvas.get_tk_widget().destroy()
             plt.close("all")
@@ -582,6 +688,7 @@ class App(ctk.CTk):
         self._ryo_canvas = canvas
 
     def _show_result(self, scores: dict, protocol: list):
+        self._resize_protocol_panel(len(protocol))
         self._priority_label.configure(
             text=priority_text(scores) if scores else "Нет данных",
             text_color="#e8f0fe" if scores else "#5a7a9a",
@@ -594,6 +701,44 @@ class App(ctk.CTk):
             return
         for p in protocol:
             self._add_card(p)
+        self._last_herbs = recommend_herbs(scores)
+        self._add_herbs_section()
+
+    def _resize_protocol_panel(self, point_count: int):
+        """Keep the protocol at the bottom and grow it upward as points appear."""
+        window_height = max(self.winfo_height(), 660)
+        target = min(round(window_height * 0.68), 270 + min(point_count, 9) * 34)
+        self.grid_rowconfigure(1, minsize=max(270, target))
+
+    def _point_limit(self):
+        value = self._point_count_var.get()
+        return None if value == "Все точки" else int(value)
+
+    def _on_point_count(self, _value=None):
+        if not self._last_scores:
+            return
+        self._last_protocol = build_protocol(
+            self._last_scores, self._acute_var.get(), self._point_limit())
+        self._show_result(self._last_scores, self._last_protocol)
+
+    def _add_herbs_section(self):
+        if not self._last_herbs:
+            return
+        ctk.CTkLabel(
+            self._result_frame, text="Рекомендуемые травы и фитокомплексы",
+            font=ctk.CTkFont(size=15, weight="bold"), text_color="#8fd19e",
+        ).pack(anchor="w", padx=8, pady=(14, 4))
+        for herb in self._last_herbs:
+            card = ctk.CTkFrame(self._result_frame, fg_color="#17352a", corner_radius=10)
+            card.pack(fill="x", padx=4, pady=4)
+            ctk.CTkLabel(
+                card, text=f"{herb['name']} · {herb['meridian']}",
+                font=ctk.CTkFont(size=13, weight="bold"), text_color="#9fe3ad",
+            ).pack(anchor="w", padx=10, pady=(7, 2))
+            ctk.CTkLabel(
+                card, text=f"Состав: {herb['herbs']}\nВажно: {herb['caution']}",
+                justify="left", wraplength=1080, text_color="#b9cfbf",
+            ).pack(anchor="w", padx=10, pady=(0, 7))
 
     def _add_card(self, p: dict):
         color = ACTION_COLOR.get(p["action"], "#888")
@@ -618,6 +763,29 @@ class App(ctk.CTk):
                      font=ctk.CTkFont(size=13),
                      text_color="#aac4e0").pack(side="left", padx=4, pady=5)
 
+        atlas_path = point_atlas_path(p["point"])
+        if atlas_path:
+            try:
+                source = oriented_atlas_image(atlas_path)
+                preview_size = fitted_image_size(source, 220, 140)
+                preview = ctk.CTkImage(
+                    light_image=source, dark_image=source, size=preview_size)
+                atlas_button = ctk.CTkButton(
+                    card, text="", image=preview,
+                    width=preview_size[0], height=preview_size[1],
+                    fg_color="#131c28", hover_color="#2a4258",
+                    command=lambda path=atlas_path, title=p["point"]:
+                        self._open_point_photo(path, title),
+                )
+                atlas_button.image = preview
+                atlas_button.pack(anchor="w", padx=12, pady=(6, 4))
+                ctk.CTkLabel(
+                    card, text="Фото локализации · нажмите для увеличения",
+                    font=ctk.CTkFont(size=10), text_color="#708ba3",
+                ).pack(anchor="w", padx=14, pady=(0, 4))
+            except (OSError, ValueError):
+                pass
+
         ctk.CTkLabel(card, text=f"  {p['rule']}",
                      font=ctk.CTkFont(size=12), text_color="#7a9bb5",
                      justify="left", wraplength=1100
@@ -629,6 +797,24 @@ class App(ctk.CTk):
                          font=ctk.CTkFont(size=11, slant="italic"),
                          text_color="#5a8aaa", justify="left", wraplength=1100
                          ).pack(anchor="w", padx=10, pady=(0, 6))
+
+    def _open_point_photo(self, path: str, title: str):
+        win = ctk.CTkToplevel(self)
+        win.title(f"Локализация точки {title}")
+        win.geometry("900x720")
+        win.transient(self)
+        source = oriented_atlas_image(path)
+        source.thumbnail((840, 610), Image.Resampling.LANCZOS)
+        photo = ctk.CTkImage(
+            light_image=source, dark_image=source, size=source.size)
+        label = ctk.CTkLabel(win, text="", image=photo)
+        label.image = photo
+        label.pack(expand=True, fill="both", padx=20, pady=(20, 8))
+        ctk.CTkLabel(
+            win,
+            text="Учебная схема. Перед воздействием уточните локализацию у специалиста.",
+            wraplength=820, text_color="#aac4e0",
+        ).pack(padx=20, pady=(0, 14))
 
     # ───────────────── Принципы ТКМ / Сохранить / Печать ────────────────────
 
@@ -671,6 +857,30 @@ class App(ctk.CTk):
                          text=f"{p['name']} ({p['code']})   ·   {p['action'].upper()}",
                          font=ctk.CTkFont(size=14), text_color="#aac4e0"
                          ).pack(side="left", padx=4, pady=6)
+
+            atlas_path = point_atlas_path(p["point"])
+            if atlas_path:
+                try:
+                    source = oriented_atlas_image(atlas_path)
+                    image_size = fitted_image_size(source, 520, 330)
+                    atlas_box = ctk.CTkFrame(
+                        card, fg_color="#131c28", corner_radius=10,
+                        border_width=2, border_color=color,
+                    )
+                    atlas_box.pack(anchor="w", padx=14, pady=(8, 6))
+                    ctk.CTkLabel(
+                        atlas_box, text=f"  ●  {p['point']}  — выбранная точка  ",
+                        font=ctk.CTkFont(size=24, weight="bold"),
+                        text_color="#ffffff", fg_color=color, corner_radius=8,
+                    ).pack(fill="x", padx=8, pady=(8, 6))
+                    photo = ctk.CTkImage(
+                        light_image=source, dark_image=source, size=image_size)
+                    image_label = ctk.CTkLabel(atlas_box, text="", image=photo)
+                    image_label.image = photo
+                    image_label.pack(padx=8, pady=(0, 8))
+                except (OSError, ValueError):
+                    pass
+
             ctk.CTkLabel(card, text=f"  {p['rule']}",
                          font=ctk.CTkFont(size=12), text_color="#7a9bb5",
                          justify="left", wraplength=900
@@ -691,6 +901,8 @@ class App(ctk.CTk):
                       ).pack(side="left", padx=6)
 
     def _save_word(self):
+        from word_export import generate_word
+
         path = filedialog.asksaveasfilename(
             defaultextension=".docx",
             filetypes=[("Word документ", "*.docx"), ("Все файлы", "*.*")],
@@ -702,7 +914,7 @@ class App(ctk.CTk):
             self._last_scores, self._last_protocol, self._selected)
         generate_word(
             self._last_scores, self._last_protocol,
-            self._selected, tcm_text, filename=path
+            self._selected, tcm_text, herbs=self._last_herbs, filename=path
         )
 
     def _build_report_text(self) -> str:
@@ -725,6 +937,12 @@ class App(ctk.CTk):
             if p.get("point_desc"):
                 lines.append(f"   {p['point_desc']}")
             lines.append("")
+        if self._last_herbs:
+            lines += ["РЕКОМЕНДУЕМЫЕ ТРАВЫ И ФИТОКОМПЛЕКСЫ:", "-" * 60]
+            for herb in self._last_herbs:
+                lines.append(f"• {herb['name']} ({herb['meridian']})")
+                lines.append(f"  Состав: {herb['herbs']}")
+                lines.append(f"  Важно: {herb['caution']}\n")
         lines += ["=" * 60, "  ПРИНЦИПЫ ТКМ", "=" * 60,
                   generate_tcm_explanation(scores, protocol, self._selected)]
         return "\n".join(lines)
