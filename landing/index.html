@@ -105,6 +105,19 @@
   .top-nav .wrap { display: flex; flex-wrap: wrap; gap: 18px; padding-top: 12px; padding-bottom: 12px; }
   .top-nav a { color: var(--text); text-decoration: none; font-size: 14px; }
   img { max-width: 100%; }
+  .product-view { padding: 78px 0; background: #0d1926; }
+  .product-view .sub { max-width: 760px; }
+  .screen-gallery { display: grid; gap: 28px; margin-top: 34px; }
+  .screen-shot { overflow: hidden; margin: 0; border: 1px solid #29445d; border-radius: 16px; background: #07111a; box-shadow: 0 28px 70px #02070c80; }
+  .screen-shot img { display: block; width: 100%; height: auto; object-fit: contain; }
+  .screen-shot figcaption { display: grid; grid-template-columns: 170px 1fr; gap: 18px; padding: 18px 22px; border-top: 1px solid #20384d; color: var(--text-dim); line-height: 1.55; }
+  .screen-shot figcaption strong { color: #69d9ff; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+  @media (max-width: 640px) {
+    .product-view { padding: 56px 0; }
+    .screen-gallery { gap: 18px; }
+    .screen-shot { border-radius: 10px; }
+    .screen-shot figcaption { grid-template-columns: 1fr; gap: 5px; padding: 15px 17px; background: #0b1722; }
+  }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 
   header.hero {
@@ -373,6 +386,23 @@
     <p class="fine">Демо-версия — полнофункциональная, без ограничений возможностей. Windows 10/11, 68 МБ.</p>
   </div>
 </header>
+
+<section class="product-view" id="interface">
+  <div class="wrap">
+    <h2>Программа в работе</h2>
+    <p class="sub">Реальный интерфейс без постановочных макетов: от выбора жалобы до готового протокола точек и ведения карточки пациента.</p>
+    <div class="screen-gallery">
+      <figure class="screen-shot">
+        <img src="assets/tkm-symptom-selection.png" alt="Выбор жалобы и автоматический подбор акупунктурных точек в программе ТКМ" width="1279" height="728" loading="lazy">
+        <figcaption><strong>Подбор по жалобам</strong><span>Выберите симптомы — программа определит приоритетный меридиан и сформирует протокол с действием каждой точки.</span></figcaption>
+      </figure>
+      <figure class="screen-shot">
+        <img src="assets/tkmp-patient-protocol.png" alt="Карточка пациента и протокол акупунктурных точек в программе ТКМП" width="1326" height="721" loading="lazy">
+        <figcaption><strong>Работа с пациентом</strong><span>Сохраняйте визиты, корректируйте протокол, добавляйте травы и возвращайтесь к истории лечения.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
 
 <section id="features">
   <div class="wrap">
