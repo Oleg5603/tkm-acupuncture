@@ -7,14 +7,14 @@
 <meta name="description" content="Профессиональная программа для подбора акупунктурных точек по традиционной китайской медицине: анализ жалоб, метод Риодораку, 10 правил ТКМ, генерация протокола лечения в Word. Бесплатная демо-версия на 7 дней.">
 <meta name="keywords" content="акупунктура программа, ТКМ софт, подбор точек акупунктуры, риодораку программа, меридианы программа, протокол иглоукалывания, традиционная китайская медицина, акупунктурные точки подбор, программа для рефлексотерапевта">
 <meta name="author" content="ТКМ">
-<link rel="canonical" href="http://tkm.ru/">
+<link rel="canonical" href="https://oleg5603.github.io/tkm-acupuncture/">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="ТКМ — программа подбора акупунктурных точек">
 <meta property="og:description" content="Анализ жалоб и Риодораку, 10 правил ТКМ, автогенерация протокола лечения. Демо-версия — 7 дней бесплатно.">
-<meta property="og:image" content="http://tkm.ru/assets/og-image.png">
-<meta property="og:url" content="http://tkm.ru/">
+<meta property="og:image" content="https://oleg5603.github.io/tkm-acupuncture/assets/og-image.png">
+<meta property="og:url" content="https://oleg5603.github.io/tkm-acupuncture/">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:site_name" content="ТКМ">
 
@@ -22,7 +22,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ТКМ — программа подбора акупунктурных точек">
 <meta name="twitter:description" content="Анализ жалоб и Риодораку, 10 правил ТКМ, автогенерация протокола лечения. Демо-версия — 7 дней бесплатно.">
-<meta name="twitter:image" content="http://tkm.ru/assets/og-image.png">
+<meta name="twitter:image" content="https://oleg5603.github.io/tkm-acupuncture/assets/og-image.png">
 
 <link rel="icon" type="image/png" href="assets/favicon-32.png">
 <link rel="shortcut icon" href="assets/favicon.ico">
@@ -42,7 +42,7 @@
     "priceCurrency": "RUB",
     "description": "Бесплатная демо-версия, пробный период 7 дней"
   },
-  "url": "http://tkm.ru/",
+  "url": "https://oleg5603.github.io/tkm-acupuncture/",
   "inLanguage": "ru"
 }
 </script>
@@ -95,6 +95,15 @@
     line-height: 1.55;
   }
   a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+  }
+  .skip-link { position: absolute; left: 12px; top: -60px; z-index: 2000; background: #fff; color: #07111b; padding: 10px 14px; border-radius: 8px; }
+  .skip-link:focus { top: 12px; }
+  .top-nav { border-bottom: 1px solid var(--border); background: #09131d; }
+  .top-nav .wrap { display: flex; flex-wrap: wrap; gap: 18px; padding-top: 12px; padding-bottom: 12px; }
+  .top-nav a { color: var(--text); text-decoration: none; font-size: 14px; }
   img { max-width: 100%; }
   .product-view { padding: 78px 0; background: #0d1926; }
   .product-view .sub { max-width: 760px; }
@@ -106,9 +115,8 @@
   @media (max-width: 640px) {
     .product-view { padding: 56px 0; }
     .screen-gallery { gap: 18px; }
-    .screen-shot { overflow-x: auto; border-radius: 10px; }
-    .screen-shot img { width: auto; max-width: none; min-width: 880px; }
-    .screen-shot figcaption { position: sticky; left: 0; grid-template-columns: 1fr; gap: 5px; width: min(100vw - 40px, 100%); padding: 15px 17px; background: #0b1722; }
+    .screen-shot { border-radius: 10px; }
+    .screen-shot figcaption { grid-template-columns: 1fr; gap: 5px; padding: 15px 17px; background: #0b1722; }
   }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 
@@ -338,9 +346,25 @@
     animation: spin 0.9s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
 </style>
 </head>
 <body>
+
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<nav class="top-nav" aria-label="Основная навигация">
+  <div class="wrap">
+    <a href="#features">Возможности</a>
+    <a href="#how">Как работает</a>
+    <a href="#trust">Безопасность</a>
+    <a href="#buy">Цена</a>
+    <a href="#faq">Вопросы</a>
+  </div>
+</nav>
+<main id="main">
 
 <header class="hero">
   <div class="wrap">
@@ -352,15 +376,14 @@
       и формирует готовый протокол лечения с объяснением логики подбора.
     </p>
     <div class="cta-row">
-      <a class="btn btn-demo dl-link" data-dl="demo" href="assets/downloads/TKM-demo.zip" download>
-        ⬇ Скачать демо-версию (7 дней бесплатно)
+      <a class="btn btn-demo" href="mailto:ogp56@bk.ru?subject=Получить%20демо%20ТКМ&body=Здравствуйте,%20пришлите,%20пожалуйста,%20демо-версию%20ТКМ.">
+        Получить демо-версию (7 дней бесплатно)
       </a>
       <a class="btn btn-buy" href="#buy">
         Купить полную версию
       </a>
     </div>
     <p class="fine">Демо-версия — полнофункциональная, без ограничений возможностей. Windows 10/11, 68 МБ.</p>
-    <p class="dl-badge" id="dlCountDemo" title="Скачиваний демо">—</p>
   </div>
 </header>
 
@@ -476,7 +499,7 @@
           <li>Экспорт протокола в Word</li>
           <li>Работает 7 дней с первого запуска</li>
         </ul>
-        <a class="btn btn-ghost dl-link" data-dl="demo" href="assets/downloads/TKM-demo.zip" download>⬇ Скачать демо</a>
+        <a class="btn btn-ghost" href="mailto:ogp56@bk.ru?subject=Получить%20демо%20ТКМ">Получить демо</a>
       </div>
       <div class="plan highlight">
         <h3>Полная версия</h3>
@@ -487,51 +510,26 @@
           <li>Все обновления функционала</li>
           <li>Персональная ссылка — после ручной проверки оплаты</li>
         </ul>
-        <button class="btn btn-buy" type="button" onclick="openEmailModal()">Оформить покупку</button>
+        <a class="btn btn-buy" href="mailto:ogp56@bk.ru?subject=Покупка%20ТКМ&body=Здравствуйте,%20хочу%20приобрести%20полную%20версию%20ТКМ.">Связаться для покупки</a>
       </div>
     </div>
     <p class="fine">
-      После оплаты мы вручную проверим платёж и отправим персональную ссылку на указанный e-mail.
+      Напишите разработчику — получите реквизиты, условия и срок выдачи. Мы вручную проверим платёж и отправим персональную ссылку на ваш e-mail.
     </p>
   </div>
 </section>
 
-<!-- ═══════════ Модальные окна покупки ═══════════ -->
-
-<div class="modal-overlay" id="modalOverlay">
-
-  <!-- Шаг 1: e-mail -->
-  <div class="modal" id="modalEmail">
-    <h3>Покупка полной версии</h3>
-    <p class="modal-text">Стоимость: <b>4 350 ₽</b>. Укажите e-mail — мы сохраним заявку, вручную проверим платёж и отправим на этот адрес персональную ссылку.</p>
-    <input class="modal-input" id="buyEmail" type="email" placeholder="you@example.com" autocomplete="email">
-    <p class="modal-error" id="buyEmailError">Введите корректный e-mail</p>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" type="button" onclick="closeModal()">Отмена</button>
-      <button class="btn btn-buy" id="submitEmailButton" type="button" onclick="submitEmail()">Продолжить</button>
+<section class="alt" id="trust">
+  <div class="wrap">
+    <h2>Контроль специалиста и конфиденциальность</h2>
+    <div class="grid2">
+      <div class="card"><h3>Вспомогательный инструмент</h3><p>Программа формирует обоснованный черновик протокола. Окончательное решение, проверку противопоказаний и ответственность за применение несёт квалифицированный специалист.</p></div>
+      <div class="card"><h3>Локальная работа</h3><p>Расчёты выполняются на компьютере пользователя. Не вводите персональные данные пациента в письма разработчику или формы сайта.</p></div>
+      <div class="card"><h3>Разработчик</h3><p>Палкин Олег Гельевич · <a href="mailto:ogp56@bk.ru">ogp56@bk.ru</a> · <a href="tel:+79223364546">+7 922 336-45-46</a>.</p></div>
+      <div class="card"><h3>Проверяемый результат</h3><p>В протоколе показываются выбранные точки и логика подбора. Перед использованием проверьте результат и сохраните только необходимые данные.</p></div>
     </div>
   </div>
-
-  <!-- Шаг 2: реквизиты оплаты -->
-  <div class="modal" id="modalPay" style="display:none">
-    <h3>Оплата — 4 350 ₽</h3>
-    <p class="modal-text">Отсканируйте QR-код или переведите на карту вручную, затем нажмите «Я оплатил(а)». Платёж будет проверен вручную.</p>
-    <img src="assets/payment-qr.png" alt="QR-код для оплаты" style="width:180px; height:180px; margin:0 auto 14px; display:block; border-radius:8px;">
-    <div class="card-number" id="cardNumber">5536 9141 5967 4112</div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" type="button" onclick="closeModal()">Отмена</button>
-      <button class="btn btn-buy" type="button" onclick="confirmPayment()">Я оплатил(а)</button>
-    </div>
-  </div>
-
-  <!-- Шаг 3: заявка передана на ручную проверку -->
-  <div class="modal" id="modalDone" style="display:none">
-    <h3>Заявка принята ✅</h3>
-    <p class="modal-text">Мы вручную проверим платёж и отправим персональную ссылку на полную версию ТКМ на указанный e-mail. Автоматическая выдача не выполняется.</p>
-    <button class="btn btn-ghost" type="button" onclick="closeModal()" style="width:100%; justify-content:center; margin-top:10px;">Закрыть</button>
-  </div>
-
-</div>
+</section>
 
 <section id="faq">
   <div class="wrap">
@@ -557,132 +555,21 @@
 
 <section class="wrap" id="feedback" style="max-width:640px; margin:0 auto; padding:40px 16px;">
   <h2>Обратная связь и рекомендации</h2>
-  <p class="fine" style="margin-bottom:16px;">Нашли ошибку, есть пожелание или хотите что-то посоветовать по программе — напишите здесь.</p>
-  <form id="feedbackForm">
-    <div style="margin-bottom:12px;">
-      <label>Какой версией пользуетесь?</label><br>
-      <label style="margin-right:16px; font-weight:normal;"><input type="radio" name="version" value="simple" checked> Простая</label>
-      <label style="font-weight:normal;"><input type="radio" name="version" value="pro"> Профессиональная</label>
-    </div>
-    <div style="margin-bottom:12px;">
-      <input type="text" name="name" placeholder="Имя (необязательно)" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:inherit;">
-    </div>
-    <div style="margin-bottom:12px;">
-      <input type="text" name="contact" placeholder="E-mail или телефон для связи (необязательно)" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:inherit;">
-    </div>
-    <div style="margin-bottom:12px;">
-      <textarea name="message" placeholder="Ваш отзыв или рекомендация" required rows="4" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:inherit; resize:vertical;"></textarea>
-    </div>
-    <button type="submit" class="btn btn-ghost">Отправить</button>
-    <p class="fine" id="feedbackStatus" style="margin-top:10px;"></p>
-  </form>
+  <p class="fine" style="margin-bottom:16px;">GitHub Pages не обрабатывает серверные формы. Напишите напрямую — так сообщение точно будет доставлено и не сохранится в открытой папке сайта.</p>
+  <a class="btn btn-ghost" href="mailto:ogp56@bk.ru?subject=Обратная%20связь%20по%20ТКМ">Написать разработчику</a>
 </section>
+
+</main>
 
 <footer>
   <div class="wrap">
-    © <span id="year"></span> ТКМ — программа подбора акупунктурных точек. <a href="mailto:info@tkm.ru">info@tkm.ru</a>
+    © <span id="year"></span> ТКМ — программа подбора акупунктурных точек. <a href="mailto:ogp56@bk.ru">ogp56@bk.ru</a>
   </div>
 </footer>
 
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-function refreshDlCount(type) {
-  fetch('count.php?type=' + type).then(function (r) { return r.json(); }).then(function (d) {
-    var el = document.getElementById(type === 'demo' ? 'dlCountDemo' : 'dlCountFull');
-    if (el) el.textContent = d.count;
-  }).catch(function () {});
-}
-
-document.querySelectorAll('.dl-link').forEach(function (link) {
-  link.addEventListener('click', function () {
-    var type = link.getAttribute('data-dl');
-    fetch('count.php?type=' + type, { method: 'POST' }).then(function (r) { return r.json(); }).then(function (d) {
-      var el = document.getElementById(type === 'demo' ? 'dlCountDemo' : 'dlCountFull');
-      if (el) el.textContent = d.count;
-    }).catch(function () {});
-  });
-});
-
-refreshDlCount('demo');
-
-document.getElementById('feedbackForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var form = e.target;
-  var statusEl = document.getElementById('feedbackStatus');
-  var data = new FormData(form);
-  statusEl.textContent = 'Отправка...';
-  fetch('feedback.php', { method: 'POST', body: data })
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (d.ok) {
-        statusEl.textContent = 'Спасибо! Сообщение отправлено.';
-        form.reset();
-      } else {
-        statusEl.textContent = 'Заполните сообщение и попробуйте снова.';
-      }
-    })
-    .catch(function () {
-      statusEl.textContent = 'Не удалось отправить. Попробуйте позже.';
-    });
-});
-
-function openEmailModal() {
-  document.getElementById('modalOverlay').classList.add('open');
-  document.getElementById('modalEmail').style.display = 'block';
-  document.getElementById('modalPay').style.display = 'none';
-  document.getElementById('modalDone').style.display = 'none';
-  document.getElementById('buyEmailError').classList.remove('show');
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-}
-
-document.getElementById('modalOverlay').addEventListener('click', function (e) {
-  if (e.target === this) closeModal();
-});
-
-async function submitEmail() {
-  const input = document.getElementById('buyEmail');
-  const error = document.getElementById('buyEmailError');
-  const button = document.getElementById('submitEmailButton');
-  const email = input.value.trim();
-  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!valid) {
-    error.textContent = 'Введите корректный e-mail';
-    error.classList.add('show');
-    return;
-  }
-  error.classList.remove('show');
-  button.disabled = true;
-  button.textContent = 'Сохраняем заявку…';
-
-  try {
-    const response = await fetch('save-email.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'email=' + encodeURIComponent(email)
-    });
-    const data = await response.json();
-    if (!response.ok || data.ok !== true || !data.order_id) {
-      throw new Error('order_not_saved');
-    }
-    document.getElementById('modalEmail').style.display = 'none';
-    document.getElementById('modalPay').style.display = 'block';
-  } catch (err) {
-    error.textContent = 'Не удалось сохранить заявку. Проверьте соединение и повторите.';
-    error.classList.add('show');
-  } finally {
-    button.disabled = false;
-    button.textContent = 'Продолжить';
-  }
-}
-
-function confirmPayment() {
-  document.getElementById('modalPay').style.display = 'none';
-  document.getElementById('modalDone').style.display = 'block';
-}
 </script>
 </body>
 </html>
