@@ -1,3 +1,4 @@
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -25,7 +26,8 @@ def test_owner_code_activates_expired_demo_permanently(tmp_path, monkeypatch):
 
     assert trial.check_trial() == (False, 0)
     assert not trial.activate_demo("wrong")
-    assert trial.activate_demo("0689")
+    monkeypatch.setattr(trial, "_OWNER_ACTIVATION_HASH", hashlib.sha256(b"test-owner-code").hexdigest())
+    assert trial.activate_demo("test-owner-code")
     assert trial.check_trial()[0] is True
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert state["permanent"] is True

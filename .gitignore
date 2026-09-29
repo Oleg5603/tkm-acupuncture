@@ -13,3 +13,10 @@ private-artifacts/
 release-candidate/
 release-full/
 release-output/
+
+.pytest_cache/
+app/build_client/
+*.sqlite3
+*.sqlite3-*
+*.db
+.venv/
